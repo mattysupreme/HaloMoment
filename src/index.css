@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-custom: var(--border-color);
+  --color-accent-primary: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-secondary: var(--accent-2);
+  --color-accent-secondary-hover: var(--accent-2-hover);
+  
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Plus Jakarta Sans", sans-serif;
+}
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #fafaf7;
+  --bg-card: #f5f4ef;
+  --text-primary: #0f0e0a;
+  --text-secondary: #5c5a52;
+  --border-color: #e8e5dc;
+  --accent: #f97316;
+  --accent-hover: #ea6c05;
+  --accent-2: #2563eb;
+  --accent-2-hover: #1d4ed8;
+}
+
+.dark {
+  --bg-primary: #0c0b08;
+  --bg-secondary: #131209;
+  --bg-card: #1c1a12;
+  --text-primary: #faf9f5;
+  --text-secondary: #a8a49a;
+  --border-color: #2a2820;
+  --accent: #fb923c;
+  --accent-hover: #f97316;
+  --accent-2: #60a5fa;
+  --accent-2-hover: #3b82f6;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { 
+    animation: none !important; 
+    transition: none !important; 
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
