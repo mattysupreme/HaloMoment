@@ -24,15 +24,15 @@ export const Dashboard = () => {
   const series = [
     {
       name: 'Instagram (ig)',
-      data: [12, 24, 36, 90]
+      data: [54, 87, 1317, 3033]
     },
     {
       name: 'TikTok (tt)',
-      data: [20, 40, 60, 150]
+      data: [1861, 6119, 8678, 8678]
     },
     {
       name: 'Web (web)',
-      data: [8, 16, 24, 70]
+      data: [68, 94, 147, 215]
     }
   ];
 
@@ -78,13 +78,13 @@ export const Dashboard = () => {
     },
     yaxis: {
       labels: {
-        formatter: (val) => `${val}k`
+        formatter: (val) => val.toLocaleString('id-ID')
       }
     },
     tooltip: {
       theme: theme === 'dark' ? 'dark' : 'light',
       y: {
-        formatter: (val) => `${val}k views`
+        formatter: (val) => `${val.toLocaleString('id-ID')} views`
       }
     },
     legend: {
@@ -98,9 +98,9 @@ export const Dashboard = () => {
     }
   };
 
-  const totalIG = 90;
-  const totalTT = 150;
-  const totalWeb = 70;
+  const totalIG = 1793;
+  const totalTT = 8678;
+  const totalWeb = 215;
   const totalViews = totalIG + totalTT + totalWeb;
 
   return (
@@ -140,7 +140,7 @@ export const Dashboard = () => {
               Total Views (90 Hari Terakhir)
             </span>
             <h2 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight">
-              {totalViews}k
+              {totalViews.toLocaleString('id-ID')}
             </h2>
             <p className="text-xs text-[var(--color-text-secondary)]">
               Akumulasi views terbaru untuk Instagram, TikTok, dan Web.
@@ -175,7 +175,7 @@ export const Dashboard = () => {
           <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 space-y-2 shadow-sm flex items-center justify-between">
             <div>
               <span className="text-xs font-semibold text-pink-500 block">Instagram (ig)</span>
-              <h4 className="text-2xl font-bold font-display">{totalIG}k views</h4>
+              <h4 className="text-2xl font-bold font-display">{totalIG.toLocaleString('id-ID')} views</h4>
             </div>
             <div className="p-2.5 rounded-xl bg-pink-50 dark:bg-pink-950/20">
               <InstagramIcon />
@@ -185,7 +185,7 @@ export const Dashboard = () => {
           <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 space-y-2 shadow-sm flex items-center justify-between">
             <div>
               <span className="text-xs font-semibold text-cyan-500 block">TikTok (tt)</span>
-              <h4 className="text-2xl font-bold font-display">{totalTT}k views</h4>
+              <h4 className="text-2xl font-bold font-display">{totalTT.toLocaleString('id-ID')} views</h4>
             </div>
             <div className="p-2.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/20">
               <TikTokIcon />
@@ -195,7 +195,7 @@ export const Dashboard = () => {
           <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 space-y-2 shadow-sm flex items-center justify-between">
             <div>
               <span className="text-xs font-semibold text-blue-500 block">Web (web)</span>
-              <h4 className="text-2xl font-bold font-display">{totalWeb}k views</h4>
+              <h4 className="text-2xl font-bold font-display">{totalWeb.toLocaleString('id-ID')} views</h4>
             </div>
             <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/20 text-blue-500">
               <Globe size={20} />
