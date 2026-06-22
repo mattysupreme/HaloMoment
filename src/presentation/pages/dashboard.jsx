@@ -21,22 +21,56 @@ const TikTokIcon = () => (
 export const Dashboard = () => {
   const { theme } = useTheme();
 
-  const series = [
+  const instagramSeries = [
     {
-      name: 'Instagram (ig)',
-      data: [54, 87, 1317, 3033]
+      name: 'Followers',
+      data: [73, 81, 88, 103]
     },
     {
-      name: 'TikTok (tt)',
-      data: [1861, 6119, 8678, 8678]
+      name: 'Likes',
+      data: [173, 202, 217, 302]
     },
     {
-      name: 'Web (web)',
-      data: [68, 94, 147, 215]
+      name: 'Postingan',
+      data: [4, 5, 6, 8]
+    },
+    {
+      name: 'Views',
+      data: [2979, 3033, 3550, 5341]
     }
   ];
 
-  const options = {
+  const tiktokSeries = [
+    {
+      name: 'Followers',
+      data: [31, 33, 41, 42]
+    },
+    {
+      name: 'Likes',
+      data: [87, 107, 126, 128]
+    },
+    {
+      name: 'Postingan',
+      data: [6, 7, 8, 9]
+    },
+    {
+      name: 'Views',
+      data: [6817, 8678, 10600, 15200]
+    }
+  ];
+
+  const webSeries = [
+    {
+      name: 'Views',
+      data: [150, 180, 215, 251]
+    },
+    {
+      name: 'Visitors',
+      data: [8, 12, 18, 29]
+    }
+  ];
+
+  const getChartOptions = (colors) => ({
     chart: {
       type: 'line',
       toolbar: {
@@ -48,10 +82,10 @@ export const Dashboard = () => {
       foreColor: theme === 'dark' ? '#94a3b8' : '#64748b',
       background: 'transparent'
     },
-    colors: ['#ec4899', '#06b6d4', '#3b82f6'],
+    colors: colors,
     stroke: {
       curve: 'smooth',
-      width: 4
+      width: 3
     },
     grid: {
       borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
@@ -68,7 +102,7 @@ export const Dashboard = () => {
       }
     },
     xaxis: {
-      categories: ['7 Hari', '14 Hari', '30 Hari', '90 Hari'],
+      categories: ['Minggu 12', 'Minggu 13', 'Minggu 14', 'Minggu 15'],
       axisBorder: {
         show: false
       },
@@ -84,7 +118,7 @@ export const Dashboard = () => {
     tooltip: {
       theme: theme === 'dark' ? 'dark' : 'light',
       y: {
-        formatter: (val) => `${val.toLocaleString('id-ID')} views`
+        formatter: (val) => val.toLocaleString('id-ID')
       }
     },
     legend: {
@@ -96,11 +130,11 @@ export const Dashboard = () => {
         colors: theme === 'dark' ? '#f8fafc' : '#0f172a'
       }
     }
-  };
+  });
 
-  const totalIG = 1793;
-  const totalTT = 8678;
-  const totalWeb = 215;
+  const totalIG = 5341;
+  const totalTT = 15200;
+  const totalWeb = 251;
   const totalViews = totalIG + totalTT + totalWeb;
 
   return (
@@ -137,36 +171,95 @@ export const Dashboard = () => {
           <div className="space-y-1">
             <span className="text-sm font-semibold text-[var(--color-text-secondary)] flex items-center gap-1.5">
               <Eye size={16} className="text-[var(--color-accent-primary)]" />
-              Total Views (90 Hari Terakhir)
+              Total Views (Minggu 12 - Minggu 15)
             </span>
             <h2 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight">
               {totalViews.toLocaleString('id-ID')}
             </h2>
             <p className="text-xs text-[var(--color-text-secondary)]">
-              Akumulasi views terbaru untuk Instagram, TikTok, dan Web.
+              Akumulasi data analytics dari Minggu 12 sampai Minggu 15.
             </p>
           </div>
         </div>
 
-        {/* Chart Card */}
-        <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-4 sm:p-6 shadow-sm">
-          <div className="pb-4 mb-4 border-b border-[var(--color-border-custom)]">
-            <h3 className="text-base font-bold font-display text-[var(--color-text-primary)]">
-              Grafik Perkembangan Views
-            </h3>
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-              Data visualisasi views (7 Hari, 14 Hari, 30 Hari, dan 90 Hari) untuk Instagram, TikTok, dan Web.
-            </p>
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Instagram Chart Card */}
+          <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-4 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="pb-4 mb-4 border-b border-[var(--color-border-custom)] flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold font-display text-[var(--color-text-primary)] flex items-center gap-2">
+                    <InstagramIcon /> Instagram
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Followers, Likes, Postingan, & Views
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-[300px] w-full">
+                <Chart
+                  options={getChartOptions(['#ec4899', '#f43f5e', '#a855f7', '#d946ef'])}
+                  series={instagramSeries}
+                  type="line"
+                  height="100%"
+                  width="100%"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="h-[350px] w-full">
-            <Chart
-              options={options}
-              series={series}
-              type="line"
-              height="100%"
-              width="100%"
-            />
+          {/* TikTok Chart Card */}
+          <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-4 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="pb-4 mb-4 border-b border-[var(--color-border-custom)] flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold font-display text-[var(--color-text-primary)] flex items-center gap-2">
+                    <TikTokIcon /> TikTok
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Followers, Likes, Postingan, & Views
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-[300px] w-full">
+                <Chart
+                  options={getChartOptions(['#06b6d4', '#10b981', '#f59e0b', '#6366f1'])}
+                  series={tiktokSeries}
+                  type="line"
+                  height="100%"
+                  width="100%"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Website Chart Card */}
+          <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-4 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="pb-4 mb-4 border-b border-[var(--color-border-custom)] flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold font-display text-[var(--color-text-primary)] flex items-center gap-2">
+                    <Globe size={20} className="text-blue-500" /> Website
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Views & Visitors
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-[300px] w-full">
+                <Chart
+                  options={getChartOptions(['#3b82f6', '#0ea5e9'])}
+                  series={webSeries}
+                  type="line"
+                  height="100%"
+                  width="100%"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
