@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Eye, Globe, TrendingUp, X } from 'lucide-react';
+import { ArrowLeft, Eye, Globe, TrendingUp, X, Sparkles } from 'lucide-react';
 import Chart from 'react-apexcharts';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -64,6 +64,30 @@ const igChanges  = buildChanges(igRaw);
 const ttChanges  = buildChanges(ttRaw);
 const webChanges = buildChanges(webRaw);
 
+const getPeakGrowth = (raw) => {
+  const changes = buildChanges(raw);
+  const peaks = {};
+
+  Object.entries(changes).forEach(([metric, wVals]) => {
+    let maxVal = -Infinity;
+    let maxIdx = 0;
+    wVals.forEach((val, idx) => {
+      const pctNum = parseFloat(val.pct);
+      if (pctNum > maxVal) {
+        maxVal = pctNum;
+        maxIdx = idx;
+      }
+    });
+    peaks[metric] = {
+      week: weeks[maxIdx],
+      pct: maxVal,
+      abs: wVals[maxIdx].abs,
+    };
+  });
+
+  return peaks;
+};
+
 // ─── sub-component: collapsible analysis panel ───────────────────────────────
 const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
   const paramColors = {
@@ -89,7 +113,7 @@ const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-custom)]">
               <span className="text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
                 <TrendingUp size={13} className={accentColor} />
-                % & Selisih Perubahan per Minggu
+                persentase per minggu
               </span>
               <button
                 onClick={onClose}
@@ -149,42 +173,18 @@ const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
   );
 };
 
-// ─── sub-component: platform card with analysis button ──────────────────────
-const PlatformCard = ({ accentClass, label, views, icon, changes, bgAccent }) => {
-  const [open, setOpen] = useState(false);
-
+// ─── sub-component: platform card ──────────────────────
+const PlatformCard = ({ accentClass, label, views, icon, bgAccent }) => {
   return (
-    <div className="flex flex-col">
-      <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 shadow-sm flex items-center justify-between">
-        <div>
-          <span className={`text-xs font-semibold block mb-0.5 ${accentClass}`}>{label}</span>
-          <h4 className="text-2xl font-bold font-display">{views.toLocaleString('id-ID')} views</h4>
-          <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">Minggu 15 · Terkini</p>
-        </div>
-        <div className="flex flex-col items-end gap-3">
-          <div className={`p-2.5 rounded-xl ${bgAccent}`}>
-            {icon}
-          </div>
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className={`flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer
-              ${open
-                ? 'bg-[var(--color-bg-primary)] border-[var(--color-border-custom)] text-[var(--color-text-secondary)]'
-                : 'border-[var(--color-border-custom)] hover:bg-gray-50 dark:hover:bg-gray-800 text-[var(--color-text-secondary)]'
-              }`}
-          >
-            <TrendingUp size={11} className={accentClass} />
-            {open ? 'Tutup' : 'Lihat Analisis'}
-          </button>
-        </div>
+    <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 shadow-sm flex items-center justify-between">
+      <div>
+        <span className={`text-xs font-semibold block mb-0.5 ${accentClass}`}>{label}</span>
+        <h4 className="text-2xl font-bold font-display">{views.toLocaleString('id-ID')} views</h4>
+        <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">Minggu 15 · Terkini</p>
       </div>
-
-      <AnalyticsPanel
-        changes={changes}
-        accentColor={accentClass}
-        isOpen={open}
-        onClose={() => setOpen(false)}
-      />
+      <div className={`p-2.5 rounded-xl ${bgAccent}`}>
+        {icon}
+      </div>
     </div>
   );
 };
@@ -235,6 +235,109 @@ const ChartCard = ({ title, subtitle, icon, series, chartOptions, changes, accen
         isOpen={open}
         onClose={() => setOpen(false)}
       />
+    </div>
+  );
+};
+
+// ─── sub-component: growth insights card ─────────────────────────────────────
+const GrowthInsightsCard = () => {
+  const igPeaks = getPeakGrowth(igRaw);
+  const ttPeaks = getPeakGrowth(ttRaw);
+  const webPeaks = getPeakGrowth(webRaw);
+
+  const formatWeek = (weekStr) => {
+    return weekStr.replace('→', ' ke ');
+  };
+
+  return (
+    <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-[var(--color-border-custom)]">
+        <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-500">
+          <Sparkles size={20} />
+        </div>
+        <div>
+          <h3 className="text-base font-bold font-display text-[var(--color-text-primary)]">
+            Highlight Pertumbuhan Tertinggi
+          </h3>
+          <p className="text-xs text-[var(--color-text-secondary)]">
+            Analisis metrik dengan persentase kenaikan mingguan paling signifikan pada masing-masing platform.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Instagram */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
+            <InstagramIcon />
+            <span className="font-bold text-sm text-[var(--color-text-primary)]">Instagram</span>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(igPeaks).map(([metric, data]) => (
+              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
+                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                    ▲ {data.pct}%
+                  </span>
+                </div>
+                <div className="text-[var(--color-text-secondary)] flex justify-between">
+                  <span>Puncak: {formatWeek(data.week)}</span>
+                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* TikTok */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
+            <TikTokIcon />
+            <span className="font-bold text-sm text-[var(--color-text-primary)]">TikTok</span>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(ttPeaks).map(([metric, data]) => (
+              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
+                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                    ▲ {data.pct}%
+                  </span>
+                </div>
+                <div className="text-[var(--color-text-secondary)] flex justify-between">
+                  <span>Puncak: {formatWeek(data.week)}</span>
+                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Website */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
+            <Globe size={20} className="text-blue-500" />
+            <span className="font-bold text-sm text-[var(--color-text-primary)]">Website</span>
+          </div>
+          <div className="space-y-3">
+            {Object.entries(webPeaks).map(([metric, data]) => (
+              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
+                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                    ▲ {data.pct}%
+                  </span>
+                </div>
+                <div className="text-[var(--color-text-secondary)] flex justify-between">
+                  <span>Puncak: {formatWeek(data.week)}</span>
+                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -386,7 +489,6 @@ export const Dashboard = () => {
             views={totalIG}
             icon={<InstagramIcon />}
             bgAccent="bg-pink-50 dark:bg-pink-950/20"
-            changes={igChanges}
           />
           <PlatformCard
             label="TikTok (tt)"
@@ -394,7 +496,6 @@ export const Dashboard = () => {
             views={totalTT}
             icon={<TikTokIcon />}
             bgAccent="bg-cyan-50 dark:bg-cyan-950/20"
-            changes={ttChanges}
           />
           <PlatformCard
             label="Web (web)"
@@ -402,9 +503,11 @@ export const Dashboard = () => {
             views={totalWeb}
             icon={<Globe size={20} className="text-blue-500" />}
             bgAccent="bg-blue-50 dark:bg-blue-950/20"
-            changes={webChanges}
           />
         </div>
+
+        {/* Growth Insights Card */}
+        <GrowthInsightsCard />
 
       </main>
     </div>
