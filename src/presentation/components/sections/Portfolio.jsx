@@ -49,6 +49,15 @@ const PORTFOLIO_ITEMS = [
     link: 'https://idulfitri.temc.web.id',
     type: 'Live Website',
     isMobile: false
+  },
+  {
+    id: 6,
+    title: 'Catatan Memori Video',
+    description: 'Catatan memori digital dengan desain interaktif untuk mengabadikan momen spesial.',
+    videoUrl: '/portofolio/porto6.mp4',
+    link: 'https://www.tiktok.com/@halomomenttech/video/7656725932471831829',
+    type: 'TikTok Video',
+    isMobile: false
   }
 ];
 
