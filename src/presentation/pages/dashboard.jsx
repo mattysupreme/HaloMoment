@@ -90,6 +90,7 @@ const getPeakGrowth = (raw) => {
   return peaks;
 };
 
+
 // ─── sub-component: collapsible analysis panel ───────────────────────────────
 const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
   const paramColors = {
@@ -481,7 +482,25 @@ export const Dashboard = () => {
     },
     tooltip: {
       theme: theme === 'dark' ? 'dark' : 'light',
-      y: { formatter: (val) => val.toLocaleString('id-ID') },
+      y: {
+        formatter: (val, { seriesIndex, dataPointIndex, w }) => {
+          if (dataPointIndex === 0) {
+            return `${val.toLocaleString('id-ID')} <span style="color: #94a3b8; font-weight: 500; margin-left: 4px;">(+0)</span> <span style="color: #94a3b8; font-weight: 600; margin-left: 4px;">(0%)</span>`;
+          }
+          const prevVal = w.config.series[seriesIndex].data[dataPointIndex - 1];
+          if (prevVal === 0) {
+            return `${val.toLocaleString('id-ID')} <span style="color: #94a3b8; font-weight: 500; margin-left: 4px;">(+0)</span> <span style="color: #94a3b8; font-weight: 600; margin-left: 4px;">(0%)</span>`;
+          }
+          const diff = val - prevVal;
+          const pctVal = ((val - prevVal) / prevVal) * 100;
+          const isUp = pctVal >= 0;
+          const formattedPct = isUp ? `+${pctVal.toFixed(2)}%` : `${pctVal.toFixed(2)}%`;
+          const displayDiff = diff >= 0 ? `+${diff.toLocaleString('id-ID')}` : diff.toLocaleString('id-ID');
+          const diffColor = isUp ? '#3b82f6' : '#f97316';
+          const pctColor = isUp ? '#22c55e' : '#ef4444';
+          return `${val.toLocaleString('id-ID')} <span style="color: ${diffColor}; font-weight: 500; margin-left: 4px;">(${displayDiff})</span> <span style="color: ${pctColor}; font-weight: 600; margin-left: 4px;">(${formattedPct})</span>`;
+        }
+      },
     },
     legend: {
       position: 'top',
