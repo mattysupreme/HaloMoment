@@ -26,38 +26,40 @@ const pct = (prev, curr) => {
   return val.toFixed(2);
 };
 
-const weeks = ['M12→M13', 'M13→M14', 'M14→M15'];
+const weeks = ['M12→M13', 'M13→M14', 'M14→M15', 'M15→M16'];
 
 // ─── data persentase ──────────────────────────────────────────────────────────
 const igRaw = {
-  Followers:  [73, 81, 88, 103],
-  Likes:      [173, 202, 217, 302],
-  Postingan:  [4, 5, 6, 8],
-  Views:      [2979, 3033, 3550, 5341],
+  Followers:  [73, 81, 88, 103, 181],
+  Likes:      [173, 202, 217, 302, 557],
+  Postingan:  [4, 5, 6, 8, 15],
+  Views:      [2979, 3033, 3550, 5341, 15651],
 };
 
 const ttRaw = {
-  Followers:  [31, 33, 41, 42],
-  Likes:      [87, 107, 126, 128],
-  Postingan:  [6, 7, 8, 9],
-  Views:      [6817, 8678, 10600, 15200],
+  Followers:  [31, 33, 41, 42, 68],
+  Likes:      [87, 107, 126, 128, 170],
+  Postingan:  [6, 7, 8, 9, 12],
+  Views:      [6817, 8678, 10600, 15200, 16900],
 };
 
 const webRaw = {
-  Views:      [150, 180, 215, 251],
-  Visitors:   [8, 12, 18, 29],
+  Views:      [150, 180, 215, 251, 319],
+  Visitors:   [8, 12, 18, 29, 45],
 };
 
 const buildChanges = (raw) =>
   Object.fromEntries(
-    Object.entries(raw).map(([key, vals]) => [
-      key,
-      [
-        { pct: pct(vals[0], vals[1]), abs: vals[1] - vals[0] },
-        { pct: pct(vals[1], vals[2]), abs: vals[2] - vals[1] },
-        { pct: pct(vals[2], vals[3]), abs: vals[3] - vals[2] },
-      ],
-    ])
+    Object.entries(raw).map(([key, vals]) => {
+      const changes = [];
+      for (let i = 0; i < vals.length - 1; i++) {
+        changes.push({
+          pct: pct(vals[i], vals[i + 1]),
+          abs: vals[i + 1] - vals[i]
+        });
+      }
+      return [key, changes];
+    })
   );
 
 const igChanges  = buildChanges(igRaw);
@@ -174,13 +176,13 @@ const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
 };
 
 // ─── sub-component: platform card ──────────────────────
-const PlatformCard = ({ accentClass, label, views, icon, bgAccent }) => {
+const PlatformCard = ({ accentClass, label, views, icon, bgAccent, week = 'Minggu 16' }) => {
   return (
     <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-5 shadow-sm flex items-center justify-between">
       <div>
         <span className={`text-xs font-semibold block mb-0.5 ${accentClass}`}>{label}</span>
         <h4 className="text-2xl font-bold font-display">{views.toLocaleString('id-ID')} views</h4>
-        <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">Minggu 15 · Terkini</p>
+        <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">{week} · Terkini</p>
       </div>
       <div className={`p-2.5 rounded-xl ${bgAccent}`}>
         {icon}
@@ -382,7 +384,7 @@ export const Dashboard = () => {
       yaxis: { lines: { show: true } },
     },
     xaxis: {
-      categories: ['Minggu 12', 'Minggu 13', 'Minggu 14', 'Minggu 15'],
+      categories: ['Minggu 12', 'Minggu 13', 'Minggu 14', 'Minggu 15', 'Minggu 16'],
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
@@ -402,9 +404,9 @@ export const Dashboard = () => {
     },
   });
 
-  const totalIG   = 5341;
-  const totalTT   = 15200;
-  const totalWeb  = 251;
+  const totalIG   = igRaw.Views[igRaw.Views.length - 1];
+  const totalTT   = ttRaw.Views[ttRaw.Views.length - 1];
+  const totalWeb  = webRaw.Views[webRaw.Views.length - 1];
   const totalViews = totalIG + totalTT + totalWeb;
 
   return (
@@ -439,13 +441,13 @@ export const Dashboard = () => {
           <div className="space-y-1">
             <span className="text-sm font-semibold text-[var(--color-text-secondary)] flex items-center gap-1.5">
               <Eye size={16} className="text-[var(--color-accent-primary)]" />
-              Total Views (Minggu 12 – Minggu 15)
+              Total Views (Minggu 12 – Minggu 16)
             </span>
             <h2 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight">
               {totalViews.toLocaleString('id-ID')}
             </h2>
             <p className="text-xs text-[var(--color-text-secondary)]">
-              Akumulasi data analytics dari Minggu 12 sampai Minggu 15.
+              Akumulasi data analytics dari Minggu 12 sampai Minggu 16.
             </p>
           </div>
         </div>
@@ -489,6 +491,7 @@ export const Dashboard = () => {
             views={totalIG}
             icon={<InstagramIcon />}
             bgAccent="bg-pink-50 dark:bg-pink-950/20"
+            week="Minggu 16"
           />
           <PlatformCard
             label="TikTok (tt)"
@@ -496,6 +499,7 @@ export const Dashboard = () => {
             views={totalTT}
             icon={<TikTokIcon />}
             bgAccent="bg-cyan-50 dark:bg-cyan-950/20"
+            week="Minggu 16"
           />
           <PlatformCard
             label="Web (web)"
@@ -503,6 +507,7 @@ export const Dashboard = () => {
             views={totalWeb}
             icon={<Globe size={20} className="text-blue-500" />}
             bgAccent="bg-blue-50 dark:bg-blue-950/20"
+            week="Minggu 16"
           />
         </div>
 
