@@ -263,15 +263,131 @@ const ChartCard = ({ title, subtitle, icon, series, chartOptions, changes, accen
   );
 };
 
-// ─── sub-component: growth insights card ─────────────────────────────────────
-const GrowthInsightsCard = () => {
-  const igPeaks = getPeakGrowth(igRaw);
-  const ttPeaks = getPeakGrowth(ttRaw);
-  const webPeaks = getPeakGrowth(webRaw);
-
+// ─── sub-component: platform peak growth card with bar chart ──────────────────
+const PlatformPeakGrowthCard = ({ platformName, icon, peaks, color, theme }) => {
   const formatWeek = (weekStr) => {
     return weekStr.replace('→', ' ke ');
   };
+
+  const categories = Object.keys(peaks);
+  const seriesData = categories.map((metric) => peaks[metric].pct);
+
+  const chartSeries = [
+    {
+      name: 'Puncak Pertumbuhan',
+      data: seriesData,
+    },
+  ];
+
+  const chartOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      foreColor: theme === 'dark' ? '#94a3b8' : '#64748b',
+      background: 'transparent',
+    },
+    colors: [color],
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        barHeight: '60%',
+        borderRadius: 4,
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => `${val.toFixed(1)}%`,
+      style: {
+        fontSize: '9px',
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
+        colors: ['#ffffff'],
+      },
+      dropShadow: {
+        enabled: false,
+      },
+    },
+    grid: {
+      borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
+      strokeDashArray: 4,
+      xaxis: { lines: { show: true } },
+      yaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      categories: categories,
+      labels: {
+        formatter: (val) => `${val}%`,
+        style: {
+          fontSize: '9px',
+        },
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          fontSize: '10px',
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          fontWeight: 600,
+        },
+      },
+    },
+    tooltip: {
+      theme: theme === 'dark' ? 'dark' : 'light',
+      y: {
+        formatter: (val, { dataPointIndex }) => {
+          const metric = categories[dataPointIndex];
+          const item = peaks[metric];
+          return `${val.toFixed(2)}% (Puncak: ${formatWeek(item.week)} · +${item.abs.toLocaleString('id-ID')})`;
+        },
+      },
+    },
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
+        {icon}
+        <span className="font-bold text-sm text-[var(--color-text-primary)]">{platformName}</span>
+      </div>
+
+      <div className="h-[180px] w-full">
+        <Chart
+          options={chartOptions}
+          series={chartSeries}
+          type="bar"
+          height="100%"
+          width="100%"
+        />
+      </div>
+
+      <div className="space-y-3">
+        {Object.entries(peaks).map(([metric, data]) => (
+          <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
+              <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                ▲ {data.pct}%
+              </span>
+            </div>
+            <div className="text-[var(--color-text-secondary)] flex justify-between">
+              <span>Puncak: {formatWeek(data.week)}</span>
+              <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── sub-component: growth insights card ─────────────────────────────────────
+const GrowthInsightsCard = () => {
+  const { theme } = useTheme();
+  const igPeaks = getPeakGrowth(igRaw);
+  const ttPeaks = getPeakGrowth(ttRaw);
+  const webPeaks = getPeakGrowth(webRaw);
 
   return (
     <div className="rounded-2xl border border-[var(--color-border-custom)] bg-[var(--color-bg-card)] p-6 shadow-sm">
@@ -290,77 +406,27 @@ const GrowthInsightsCard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Instagram */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
-            <InstagramIcon />
-            <span className="font-bold text-sm text-[var(--color-text-primary)]">Instagram</span>
-          </div>
-          <div className="space-y-3">
-            {Object.entries(igPeaks).map(([metric, data]) => (
-              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
-                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
-                    ▲ {data.pct}%
-                  </span>
-                </div>
-                <div className="text-[var(--color-text-secondary)] flex justify-between">
-                  <span>Puncak: {formatWeek(data.week)}</span>
-                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* TikTok */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
-            <TikTokIcon />
-            <span className="font-bold text-sm text-[var(--color-text-primary)]">TikTok</span>
-          </div>
-          <div className="space-y-3">
-            {Object.entries(ttPeaks).map(([metric, data]) => (
-              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
-                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
-                    ▲ {data.pct}%
-                  </span>
-                </div>
-                <div className="text-[var(--color-text-secondary)] flex justify-between">
-                  <span>Puncak: {formatWeek(data.week)}</span>
-                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Website */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-[var(--color-border-custom)]/50">
-            <Globe size={20} className="text-blue-500" />
-            <span className="font-bold text-sm text-[var(--color-text-primary)]">Website</span>
-          </div>
-          <div className="space-y-3">
-            {Object.entries(webPeaks).map(([metric, data]) => (
-              <div key={metric} className="p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-[var(--color-border-custom)]/40 text-xs">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-[var(--color-text-secondary)]">{metric}</span>
-                  <span className="font-bold text-green-600 dark:text-green-400 flex items-center gap-0.5">
-                    ▲ {data.pct}%
-                  </span>
-                </div>
-                <div className="text-[var(--color-text-secondary)] flex justify-between">
-                  <span>Puncak: {formatWeek(data.week)}</span>
-                  <span className="font-medium">({data.abs > 0 ? `+${data.abs.toLocaleString('id-ID')}` : data.abs.toLocaleString('id-ID')})</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PlatformPeakGrowthCard
+          platformName="Instagram"
+          icon={<InstagramIcon />}
+          peaks={igPeaks}
+          color="#ec4899"
+          theme={theme}
+        />
+        <PlatformPeakGrowthCard
+          platformName="TikTok"
+          icon={<TikTokIcon />}
+          peaks={ttPeaks}
+          color="#06b6d4"
+          theme={theme}
+        />
+        <PlatformPeakGrowthCard
+          platformName="Website"
+          icon={<Globe size={20} className="text-blue-500" />}
+          peaks={webPeaks}
+          color="#3b82f6"
+          theme={theme}
+        />
       </div>
     </div>
   );
