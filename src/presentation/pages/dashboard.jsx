@@ -128,13 +128,14 @@ const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
 
             {/* tabel persentase */}
             <div className="p-4 overflow-x-auto">
-              <table className="w-full text-xs min-w-[240px]">
+              <table className="w-full text-xs min-w-[320px]">
                 <thead>
                   <tr>
                     <th className="text-left text-[var(--color-text-secondary)] font-semibold pb-2 pr-3 w-1/4">Parameter</th>
                     {weeks.map((w) => (
                       <th key={w} className="text-center text-[var(--color-text-secondary)] font-semibold pb-2 px-1">{w}</th>
                     ))}
+                    <th className="text-center text-[var(--color-text-secondary)] font-semibold pb-2 px-1 pl-3 border-l border-[var(--color-border-custom)]">Rata-rata</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -163,6 +164,27 @@ const AnalyticsPanel = ({ changes, accentColor, isOpen, onClose }) => {
                           </td>
                         );
                       })}
+                      {(() => {
+                        const avgPct = vals.reduce((acc, curr) => acc + parseFloat(curr.pct), 0) / vals.length;
+                        const avgAbs = vals.reduce((acc, curr) => acc + curr.abs, 0) / vals.length;
+                        const isUp = avgPct >= 0;
+                        return (
+                          <td className="py-2.5 px-1 pl-3 text-center border-l border-[var(--color-border-custom)] bg-gray-50/20 dark:bg-gray-800/5">
+                            <span className={`inline-flex flex-col items-center justify-center font-semibold rounded-md px-2 py-1
+                              ${isUp
+                                ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30'
+                                : 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30'
+                              }`}>
+                              <span className="flex items-center gap-0.5 whitespace-nowrap">
+                                {isUp ? '▲' : '▼'} {Math.abs(avgPct).toFixed(2)}%
+                              </span>
+                              <span className="text-[10px] opacity-75 font-normal whitespace-nowrap">
+                                ({isUp ? '+' : ''}{avgAbs.toLocaleString('id-ID', { maximumFractionDigits: 1 })})
+                              </span>
+                            </span>
+                          </td>
+                        );
+                      })()}
                     </tr>
                   ))}
                 </tbody>
